@@ -1,0 +1,149 @@
+<div class="register-container">
+  <div class="register-wrapper">
+    <div class="register-card">
+      <div class="register-header">
+        <div class="register-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <h1 class="register-title">Únete a nosotros</h1>
+        <p class="register-subtitle">Crea tu cuenta y comienza tu experiencia</p>
+      </div>
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <div class="form-group">
+          <label for="fullName" class="form-label">
+            Nombre Completo
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            id="fullName" 
+            formControlName="fullName"
+            placeholder="Tu nombre completo"
+            [class.error]="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched">
+          <div class="error-message" *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched">
+            <div *ngIf="registerForm.get('fullName')?.errors?.['required']">El nombre es requerido</div>
+            <div *ngIf="registerForm.get('fullName')?.errors?.['minlength']">Mínimo 2 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="companyName" class="form-label">
+            Empresa
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            id="companyName" 
+            formControlName="companyName"
+            placeholder="Nombre de tu empresa"
+            [class.error]="registerForm.get('companyName')?.invalid && registerForm.get('companyName')?.touched">
+          <div class="error-message" *ngIf="registerForm.get('companyName')?.invalid && registerForm.get('companyName')?.touched">
+            <div *ngIf="registerForm.get('companyName')?.errors?.['required']">El nombre de la empresa es requerido</div>
+            <div *ngIf="registerForm.get('companyName')?.errors?.['minlength']">Mínimo 2 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">
+            Correo Electrónico
+          </label>
+          <input 
+            type="email" 
+            class="form-input" 
+            id="email" 
+            formControlName="email"
+            placeholder="tu@empresa.com"
+            [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          <div class="error-message" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            <div *ngIf="registerForm.get('email')?.errors?.['required']">El email es requerido</div>
+            <div *ngIf="registerForm.get('email')?.errors?.['email']">Ingresa un email válido</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber" class="form-label">
+            Teléfono
+          </label>
+          <input 
+            type="tel" 
+            class="form-input" 
+            id="phoneNumber" 
+            formControlName="phoneNumber"
+            placeholder="+1 234 567 8900"
+            [class.error]="registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched">
+          <div class="error-message" *ngIf="registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched">
+            <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El teléfono es requerido</div>
+            <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingresa un teléfono válido</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">
+            Contraseña
+          </label>
+          <input 
+            type="password" 
+            class="form-input" 
+            id="password" 
+            formControlName="password"
+            placeholder="••••••••"
+            [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          <div class="error-message" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            <div *ngIf="registerForm.get('password')?.errors?.['required']">La contraseña es requerida</div>
+            <div *ngIf="registerForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">
+            Confirmar Contraseña
+          </label>
+          <input 
+            type="password" 
+            class="form-input" 
+            id="confirmPassword" 
+            formControlName="confirmPassword"
+            placeholder="••••••••"
+            [class.error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+          <div class="error-message" *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+            <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Confirma la contraseña</div>
+            <div *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">Las contraseñas no coinciden</div>
+          </div>
+        </div>
+
+        <div class="alert-error" *ngIf="errorMessage">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+          </svg>
+          {{ errorMessage }}
+        </div>
+
+        <div class="alert-success" *ngIf="successMessage">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="currentColor"/>
+          </svg>
+          {{ successMessage }}
+        </div>
+
+        <button 
+          type="submit" 
+          class="register-button"
+          [disabled]="registerForm.invalid || loading"
+          [class.loading]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          <span *ngIf="!loading">Crear Cuenta</span>
+          <span *ngIf="loading">Registrando...</span>
+        </button>
+      </form>
+
+      <div class="register-footer">
+        <p>¿Ya tienes cuenta? 
+          <a routerLink="/login" class="link">Inicia sesión aquí</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
