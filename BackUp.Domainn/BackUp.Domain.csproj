@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>cae588f8-e4de-4502-a3ee-1cbf225c3c92</UserSecretsId>
+	  <RootNamespace>BackUp.Domain</RootNamespace>
+	  <AssemblyName>BackUp.Domain</AssemblyName>
+	  <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Constract\**" />
+    <EmbeddedResource Remove="Constract\**" />
+    <None Remove="Constract\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>

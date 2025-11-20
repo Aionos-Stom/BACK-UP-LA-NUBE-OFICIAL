@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Nuevo perfil",
+    "Projects": [
+      {
+        "Path": "SellPoint.API\\BackUp.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "SellPoint.View\\BackUp.View.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

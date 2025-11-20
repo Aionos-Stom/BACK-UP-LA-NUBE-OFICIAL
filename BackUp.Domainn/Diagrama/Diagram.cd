@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SellPoint.Domainn.Base.UsuarioBase">
+    <Position X="5.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAIAEAAAQgAAAAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <FileName>Base\UsuarioBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Base.AuditEntity">
+    <Position X="14.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAgAAAAAQAAAAAAAAAAAAIARAAAAAAAAAAQAAAAAA=</HashCode>
+      <FileName>Base\AuditEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Entities.Users.Administrador">
+    <Position X="4.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Entities\Users\Administrador.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Entities.Users.Cliente">
+    <Position X="6.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>Entities\Users\Cliente.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Entities.Orders.Pedido">
+    <Position X="20.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgEAQABEAAgAAAAAAAgAAIAQQAIAAAACAAAABAg=</HashCode>
+      <FileName>Entities\Orders\Pedido.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domain.Entities.Orders.DetallePedido">
+    <Position X="18.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAEAAAAEAAAABAAAAAAAAAAACAAAAAAAAAAAAEA=</HashCode>
+      <FileName>Entities\Orders\DetallePedido.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domain.Entities.Orders.Carrito">
+    <Position X="18" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAAAAAAAgABAAAAAAAAIAAAAEAAAAAAAAAAEA=</HashCode>
+      <FileName>Entities\Orders\Carrito.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Entities.Products.Catergoria">
+    <Position X="14" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAgAAAAAgAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Products\Catergoria.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Entities.Products.Cupon">
+    <Position X="11.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAQAAAAAAAAIAAAABAgCAAABgAAAQAAAAACA=</HashCode>
+      <FileName>Entities\Products\Cupon.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domainn.Entities.Products.Producto">
+    <Position X="11.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAgAARgAAAAAAgAAAAAAAAAEA=</HashCode>
+      <FileName>Entities\Products\Producto.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domain.Entities.Users.Sesion">
+    <Position X="16" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAwABAAAAAAAAAAAIAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Users\Sesion.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SellPoint.Domain.Entities.Users.DireccionEnvio">
+    <Position X="10" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Users\DireccionEnvio.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
