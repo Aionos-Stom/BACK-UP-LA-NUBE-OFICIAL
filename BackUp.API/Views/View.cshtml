@@ -1,0 +1,103 @@
+﻿@model IEnumerable<BackUp.Domain.Entities.Bac.JobBackup>
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>View</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PoliticaId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CloudStorageId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaProgramada)
+            </th>
+           
+            <th>
+                @Html.DisplayNameFor(model => model.FechaEjecucion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaCompletado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Politica)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CloudStorage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VerificacionesIntegridad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recuperaciones)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Alertas)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PoliticaId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CloudStorageId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Politica)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CloudStorage)
+            </td>
+           o
+            <td>
+                @Html.DisplayFor(modelItem => item.Recuperaciones)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VerificacionesIntegridad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Alertas)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaCompletado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaEjecucion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaProgramada)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

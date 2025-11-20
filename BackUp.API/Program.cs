@@ -24,7 +24,7 @@ namespace BackUp.API
                                     {
                                         Title = "BackUp API",
                                         Version = "v1",
-                                        Description = "Documentaciï¿½n de la API de BackUp",
+                                        Description = "Documentación de la API de BackUp",
                                         Contact = new OpenApiContact
                                         {
                                             Name = "Soporte",
@@ -76,7 +76,7 @@ namespace BackUp.API
                                     {
 
                                         c.SwaggerEndpoint("/swagger/v1/swagger.json", "BackUp API v1");
-                                        c.DisplayRequestDuration(); // Muestra duraciï¿½n de las peticiones
+                                        c.DisplayRequestDuration(); // Muestra duración de las peticiones
                                         c.EnableDeepLinking(); // Permite enlaces directos a secciones
                                         c.DefaultModelsExpandDepth(-1);
                                     });
