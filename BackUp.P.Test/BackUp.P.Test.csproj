@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SellPoint.Persistence\BackUp.Persistence.csproj" />
+    <ProjectReference Include="..\BackUp.Persistence\BackUp.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,3 +26,4 @@
   </ItemGroup>
 
 </Project>
+
