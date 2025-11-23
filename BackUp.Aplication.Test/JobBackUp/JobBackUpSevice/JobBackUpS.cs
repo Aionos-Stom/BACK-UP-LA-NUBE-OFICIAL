@@ -27,11 +27,7 @@ namespace BackUp.Aplication.Test.JobBackUp.JobBackUpSevice
             _loggerMock = new Mock<ILogger<JobBackupService>>();
             _configurationMock = new Mock<IConfiguration>();
             _contextMock = new Mock<IApplicationDbContext>();
-
-            _jobBackupService = new JobBackupService(
-                _loggerMock.Object,
-                _contextMock.Object
-            );
+            _jobBackupService = new JobBackupService(_jobBackupRepositoryMock.Object);
         }
 
         [Fact]
@@ -53,3 +49,4 @@ namespace BackUp.Aplication.Test.JobBackUp.JobBackUpSevice
         }
     }
 }
+
