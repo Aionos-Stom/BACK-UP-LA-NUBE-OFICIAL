@@ -27,12 +27,12 @@ namespace BackUp.P.Test.JobBackUp.Get
             _configurationMock = new Mock<IConfiguration>();
             _contextMock = new Mock<IApplicationDbContext>();
 
-            _configurationMock.Setup(x => x.GetSection(It.IsAny<string>())).Returns(new Mock<IConfigurationSection>().Object);
+            _configurationMock.Setup(x => x.GetSection(It.IsAny<string>()))
+                             .Returns(new Mock<IConfigurationSection>().Object);
 
-            _jobBackupService = new JobBackupService(
-                _loggerMock.Object,
-                _contextMock.Object
-            );
+     
+            // OPCIÓN 4: Solo 1 parámetro - Repository
+             _jobBackupService = new JobBackupService(_jobBackupRepositoryMock.Object);
         }
 
         [Fact]
@@ -51,3 +51,4 @@ namespace BackUp.P.Test.JobBackUp.Get
         }
     }
 }
+
