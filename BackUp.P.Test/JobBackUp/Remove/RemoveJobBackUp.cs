@@ -1,4 +1,4 @@
-﻿using BackUp.Aplication.Services.JobBackupService;
+using BackUp.Aplication.Services.JobBackupService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -30,10 +30,7 @@ namespace BackUp.P.Test.JobBackUp.Remove
 
             _configurationMock.Setup(x => x.GetSection(It.IsAny<string>())).Returns(new Mock<IConfigurationSection>().Object);
 
-            _jobBackupService = new JobBackupService(
-                _loggerMock.Object,
-                _contextMock.Object
-            );
+            _jobBackupService = new JobBackupService(_jobBackupRepositoryMock.Object);
         }
 
         [Fact]
@@ -52,3 +49,4 @@ namespace BackUp.P.Test.JobBackUp.Remove
         }
     }
 }
+
