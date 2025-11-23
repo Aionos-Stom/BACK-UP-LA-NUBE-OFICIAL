@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SellPoint.Aplication\BackUp.Aplication.csproj" />
+    <ProjectReference Include="..\BackUp.Aplication\BackUp.Aplication.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,3 +26,4 @@
   </ItemGroup>
 
 </Project>
+
