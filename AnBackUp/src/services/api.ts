@@ -29,6 +29,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // CRÍTICO: envía las cookies httpOnly en cada petición
 });
 
 // Interceptor para manejar errores
@@ -84,7 +85,8 @@ export const dashboardApi = {
 export const jobBackupApi = {
   obtenerTodos: async (): Promise<ObtenerJobBackupDTO[]> => {
     const response = await api.get('/jobbackup');
-    return toCamelCase(response.data);
+    const data = response.data?.data ?? response.data;
+    return toCamelCase(data);
   },
   obtenerPorId: async (id: number): Promise<ObtenerJobBackupDTO> => {
     const response = await api.get(`/jobbackup/${id}`);
@@ -360,6 +362,26 @@ export const backupApi = {
     const response = await api.post(`/backup/${id}/verificar-integridad`);
     return toCamelCase(response.data);
   },
+};
+
+// Admin API
+export const adminApi = {
+  getUsuarios: () => api.get('/admin/usuarios').then(r => r.data),
+  getEstadisticas: () => api.get('/admin/estadisticas').then(r => r.data),
+  getPagos: () => api.get('/admin/pagos').then(r => r.data),
+  cambiarRol: (id: number, nuevoRol: string) => api.put(`/admin/usuarios/${id}/rol`, { nuevoRol }).then(r => r.data),
+  activar: (id: number) => api.put(`/admin/usuarios/${id}/activar`).then(r => r.data),
+  desactivar: (id: number) => api.put(`/admin/usuarios/${id}/desactivar`).then(r => r.data),
+  otorgarPlanGratis: (id: number, planId: number, fechaFin?: Date) =>
+    api.post(`/admin/usuarios/${id}/otorgar-plan-gratis`, { planId, fechaFin }).then(r => r.data),
+};
+
+// Planes API
+export const planApi = {
+  getPlanes: () => api.get('/planes').then(r => r.data),
+  getMiSuscripcion: () => api.get('/planes/mi-suscripcion').then(r => r.data),
+  suscribir: (planId: number, metodoPago: string) =>
+    api.post(`/planes/${planId}/suscribir`, { metodoPago }).then(r => r.data),
 };
 
 export default api;

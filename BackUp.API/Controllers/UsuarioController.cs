@@ -1,6 +1,7 @@
 ﻿using BackUp.Aplication.Dtos.Usuario;
 using BackUp.Aplication.Interfaces.IService;
 using BackUp.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "admin,superadmin")]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;

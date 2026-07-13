@@ -2,6 +2,7 @@
 using BackUp.Application.Dtos.Dashboard;
 using BackUp.Application.Interfaces.IService;
 using BackUp.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -11,6 +12,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

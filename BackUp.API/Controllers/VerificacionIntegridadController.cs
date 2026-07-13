@@ -1,20 +1,26 @@
-﻿using BackUp.Aplication.Dtos.VerificacionIntegridad;
+using BackUp.Aplication.Dtos.VerificacionIntegridad;
 using BackUp.Aplication.Interfaces.IService;
 using BackUp.Domain.Base;
+using BackUp.Persistence.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class VerificacionIntegridadController : ControllerBase
     {
         private readonly IVerificacionIntegridadService _verificacionIntegridadService;
+        private readonly BackUpDbContext _context;
 
-        public VerificacionIntegridadController(IVerificacionIntegridadService verificacionIntegridadService)
+        public VerificacionIntegridadController(IVerificacionIntegridadService verificacionIntegridadService, BackUpDbContext context)
         {
             _verificacionIntegridadService = verificacionIntegridadService;
+            _context = context;
         }
 
         [HttpGet]
@@ -37,25 +43,22 @@ namespace BackUp.API.Controllers
         [HttpGet("job/{jobId}")]
         public async Task<ActionResult<OperationResult>> ObtenerPorJob(int jobId)
         {
-            var repository = (_verificacionIntegridadService as dynamic)._verificacionIntegridadRepository;
-            var result = await repository.ObtenerPorJobAsync(jobId);
-
-            if (!result.IsSuccess)
-                return NotFound(result);
-
-            return Ok(result);
+            var verificaciones = await _context.VerificacionIntegridad
+                .Where(v => v.job_id == jobId)
+                .OrderByDescending(v => v.FechaVerificacion)
+                .ToListAsync();
+            return Ok(OperationResult.Success(verificaciones));
         }
 
         [HttpGet("job/{jobId}/ultima")]
-        public async Task<ActionResult<ObtenerVerificacionIntegridadDTO>> ObtenerUltimaPorJob(int jobId)
+        public async Task<ActionResult<OperationResult>> ObtenerUltimaPorJob(int jobId)
         {
-            var repository = (_verificacionIntegridadService as dynamic)._verificacionIntegridadRepository;
-            var verificacion = await repository.ObtenerUltimaPorJobAsync(jobId);
-
-            if (verificacion == null)
-                return NotFound();
-
-            return Ok(verificacion);
+            var verificacion = await _context.VerificacionIntegridad
+                .Where(v => v.job_id == jobId)
+                .OrderByDescending(v => v.FechaVerificacion)
+                .FirstOrDefaultAsync();
+            if (verificacion == null) return NotFound(OperationResult.Failure("No encontrada"));
+            return Ok(OperationResult.Success(verificacion));
         }
 
         [HttpPost]

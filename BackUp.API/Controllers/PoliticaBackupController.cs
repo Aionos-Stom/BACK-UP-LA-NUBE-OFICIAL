@@ -2,6 +2,7 @@
 using BackUp.Aplication.Dtos.PoliticaBackup;
 using BackUp.Aplication.Interfaces.IService;
 using BackUp.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PoliticaBackupController : ControllerBase
     {
         private readonly IPoliticaBackupService _politicaBackupService;

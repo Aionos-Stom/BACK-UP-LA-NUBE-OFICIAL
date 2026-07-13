@@ -1,5 +1,6 @@
 ﻿using BackUp.Aplication.Dtos.organizacion;
 using BackUp.Aplication.Interfaces.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BackUp.Domain.Base;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "admin,superadmin")]
     public class OrganizacionController : ControllerBase
     {
         private readonly IOrganizacionService _organizacionService;

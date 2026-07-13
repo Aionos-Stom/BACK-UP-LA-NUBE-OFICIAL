@@ -47,7 +47,7 @@ CREATE TABLE USERS (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     nombre VARCHAR(255) NOT NULL,
-    rol VARCHAR(20) NOT NULL CHECK (rol IN ('admin', 'usuario', 'auditor')) DEFAULT 'usuario',
+    rol VARCHAR(20) NOT NULL CHECK (rol IN ('superadmin', 'admin', 'usuario', 'auditor')) DEFAULT 'usuario',
     mfa_habilitado Bit DEFAULT 0,
     mfa_secret VARCHAR(255),
     last_login DATETIME,
@@ -282,10 +282,11 @@ EXEC sp_rename 'SESION', 'Sesion';
 
 
 SELECT name FROM sys.tables WHERE name IN (
-    'Organizacion', 'CloudStorage', 'PoliticaBackup', 'Usuario', 
+    'Organizacion', 'CloudStorage', 'PoliticaBackup', 'Usuario',
     'JobBackup', 'Recuperacion', 'VerificacionIntegridad', 'Alerta', 'Sesion'
 );
 
+GO
 
 CREATE VIEW vw_MetricasCalculadas AS
 SELECT 
@@ -488,4 +489,100 @@ SELECT TOP 5 * FROM PoliticaBackup;
 SELECT TOP 5 * FROM JobBackup;
 SELECT  * FROM Organizacion;
 
+GO
 
+-- =============================================
+-- SISTEMA DE PLANES, SUSCRIPCIONES Y AUTENTICACION JWT
+-- =============================================
+
+-- Tabla Plan
+CREATE TABLE PlanSuscripcion (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    nombre VARCHAR(100) NOT NULL,
+    descripcion NVARCHAR(500),
+    precio_mensual DECIMAL(10,2) NOT NULL DEFAULT 0,
+    limite_almacenamiento_bytes BIGINT NOT NULL DEFAULT 5368709120,
+    max_jobs_concurrentes INT NOT NULL DEFAULT 2,
+    max_politicas INT NOT NULL DEFAULT 3,
+    backup_automatico BIT NOT NULL DEFAULT 0,
+    soporte_prioritario BIT NOT NULL DEFAULT 0,
+    es_gratuito BIT NOT NULL DEFAULT 0,
+    is_active BIT NOT NULL DEFAULT 1
+);
+
+-- Tabla Suscripcion
+CREATE TABLE Suscripcion (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    usuario_id INT NOT NULL REFERENCES Usuario(id),
+    plan_id INT NOT NULL REFERENCES PlanSuscripcion(id),
+    estado VARCHAR(30) NOT NULL DEFAULT 'activa',
+    fecha_inicio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_fin DATETIME NULL,
+    es_gratis_admin_granted BIT NOT NULL DEFAULT 0,
+    otorgada_por_admin_id INT NULL,
+    almacenamiento_usado_bytes BIGINT NOT NULL DEFAULT 0
+);
+
+-- Tabla Pago
+CREATE TABLE Pago (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    suscripcion_id INT NOT NULL REFERENCES Suscripcion(id),
+    monto DECIMAL(10,2) NOT NULL,
+    moneda VARCHAR(10) NOT NULL DEFAULT 'USD',
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    metodo_pago VARCHAR(50) NOT NULL,
+    referencia_externa NVARCHAR(255) NULL,
+    fecha_pago DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    descripcion NVARCHAR(500) NULL
+);
+
+-- Tabla RefreshToken (para JWT con cookies httpOnly)
+CREATE TABLE RefreshToken (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    usuario_id INT NOT NULL REFERENCES Usuario(id),
+    token VARCHAR(512) NOT NULL,
+    expiracion DATETIME NOT NULL,
+    revocado BIT NOT NULL DEFAULT 0,
+    creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reemplazado_por VARCHAR(512) NULL
+);
+
+GO
+
+-- Planes de precios iniciales
+INSERT INTO PlanSuscripcion (nombre, descripcion, precio_mensual, limite_almacenamiento_bytes, max_jobs_concurrentes, max_politicas, backup_automatico, soporte_prioritario, es_gratuito)
+VALUES
+('Gratuito', 'Plan gratuito con funciones basicas', 0.00, 5368709120, 2, 3, 0, 0, 1),
+('Basico', 'Para pequenas empresas. 50 GB de almacenamiento', 9.99, 53687091200, 5, 10, 1, 0, 0),
+('Pro', 'Para empresas medianas. 500 GB de almacenamiento', 29.99, 536870912000, 20, 50, 1, 1, 0),
+('Empresa', 'Para grandes organizaciones. 5 TB de almacenamiento', 99.99, 5497558138880, 100, 999, 1, 1, 0),
+('Ilimitado', 'Plan especial sin limites - Solo asignable por administrador', 0.00, 9223372036854775807, 999, 9999, 1, 1, 0);
+
+GO
+
+-- SuperAdmin: se crea via POST /api/auth/setup en el primer arranque (hash generado por la app)
+
+GO
+
+
+
+GO
+
+-- Tabla AuditLog para trazabilidad completa
+CREATE TABLE AuditLog (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    usuario_id INT NULL REFERENCES Usuario(id) ON DELETE SET NULL,
+    accion VARCHAR(100) NOT NULL,
+    entidad VARCHAR(100) NOT NULL,
+    entidad_id VARCHAR(50) NULL,
+    datos_anteriores NVARCHAR(MAX) NULL,
+    datos_nuevos NVARCHAR(MAX) NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent NVARCHAR(500) NULL,
+    email VARCHAR(255) NULL,
+    creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_audit_usuario ON AuditLog(usuario_id);
+CREATE INDEX idx_audit_accion ON AuditLog(accion);
+CREATE INDEX idx_audit_fecha ON AuditLog(creado_en);

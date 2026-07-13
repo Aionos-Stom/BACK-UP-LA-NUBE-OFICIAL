@@ -1,6 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { CircularProgress, Box } from '@mui/material';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider } from './components/Toast';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import JobBackups from './pages/JobBackups';
@@ -9,47 +12,29 @@ import CloudStorage from './pages/CloudStorage';
 import Politicas from './pages/Politicas';
 import Recuperaciones from './pages/Recuperaciones';
 import VerificacionIntegridad from './pages/VerificacionIntegridad';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AuditLogPage from './pages/admin/AuditLog';
+import Perfil from './pages/Perfil';
+import Planes from './pages/Planes';
+import NotFound from './pages/NotFound';
 
 const theme = createTheme({
   palette: {
     mode: 'dark',
-    primary: {
-      main: '#00d4ff', // Cyan brillante
-      light: '#5dffff',
-      dark: '#00a2cc',
-    },
-    secondary: {
-      main: '#7c3aed', // Morado azulado
-      light: '#a78bfa',
-      dark: '#5b21b6',
-    },
-    background: {
-      default: '#0a0e27', // Azul muy oscuro
-      paper: '#0f1629', // Azul oscuro
-    },
-    text: {
-      primary: '#ffffff',
-      secondary: '#b0d4ff',
-    },
-    success: {
-      main: '#00ff88',
-    },
-    warning: {
-      main: '#ffb800',
-    },
-    error: {
-      main: '#ff006e',
-    },
+    primary: { main: '#00d4ff', light: '#5dffff', dark: '#00a2cc' },
+    secondary: { main: '#7c3aed', light: '#a78bfa', dark: '#5b21b6' },
+    background: { default: '#0a0e27', paper: '#0f1629' },
+    text: { primary: '#ffffff', secondary: '#b0d4ff' },
+    success: { main: '#00ff88' },
+    warning: { main: '#ffb800' },
+    error: { main: '#ff006e' },
   },
   typography: {
     fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
+      '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto',
+      '"Helvetica Neue"', 'Arial', 'sans-serif',
     ].join(','),
     h4: {
       fontWeight: 700,
@@ -57,9 +42,7 @@ const theme = createTheme({
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
     },
-    h6: {
-      fontWeight: 600,
-    },
+    h6: { fontWeight: 600 },
   },
   components: {
     MuiCard: {
@@ -110,10 +93,7 @@ const theme = createTheme({
     },
     MuiChip: {
       styleOverrides: {
-        root: {
-          borderRadius: '8px',
-          fontWeight: 500,
-        },
+        root: { borderRadius: '8px', fontWeight: 500 },
       },
     },
     MuiAppBar: {
@@ -136,26 +116,75 @@ const theme = createTheme({
   },
 });
 
-function App() {
+function LoadingScreen() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/jobs" element={<JobBackups />} />
-            <Route path="/alertas" element={<Alertas />} />
-            <Route path="/cloud-storage" element={<CloudStorage />} />
-            <Route path="/politicas" element={<Politicas />} />
-            <Route path="/recuperaciones" element={<Recuperaciones />} />
-            <Route path="/verificacion-integridad" element={<VerificacionIntegridad />} />
-          </Routes>
-        </Layout>
-      </Router>
-    </ThemeProvider>
+    <Box sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      bgcolor: '#0a0e27'
+    }}>
+      <CircularProgress sx={{ color: '#00d4ff' }} />
+    </Box>
   );
 }
 
-export default App;
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { usuario, isLoading } = useAuth();
+  if (isLoading) return <LoadingScreen />;
+  if (!usuario) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { usuario, isAdmin, isLoading } = useAuth();
+  if (isLoading) return <LoadingScreen />;
+  if (!usuario) return <Navigate to="/login" replace />;
+  if (!isAdmin && usuario.rol !== 'auditor') return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+function HomeRoute() {
+  const { usuario, isAdmin, isLoading } = useAuth();
+  if (isLoading) return <LoadingScreen />;
+  if (!usuario) return <Navigate to="/login" replace />;
+  if (isAdmin || usuario.rol === 'auditor') return <Navigate to="/admin" replace />;
+  return <Layout><Dashboard /></Layout>;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<HomeRoute />} />
+      <Route path="/jobs" element={<ProtectedRoute><Layout><JobBackups /></Layout></ProtectedRoute>} />
+      <Route path="/alertas" element={<ProtectedRoute><Layout><Alertas /></Layout></ProtectedRoute>} />
+      <Route path="/cloud-storage" element={<ProtectedRoute><Layout><CloudStorage /></Layout></ProtectedRoute>} />
+      <Route path="/politicas" element={<ProtectedRoute><Layout><Politicas /></Layout></ProtectedRoute>} />
+      <Route path="/recuperaciones" element={<ProtectedRoute><Layout><Recuperaciones /></Layout></ProtectedRoute>} />
+      <Route path="/verificacion-integridad" element={<ProtectedRoute><Layout><VerificacionIntegridad /></Layout></ProtectedRoute>} />
+      <Route path="/perfil" element={<ProtectedRoute><Layout><Perfil /></Layout></ProtectedRoute>} />
+      <Route path="/planes" element={<ProtectedRoute><Layout><Planes /></Layout></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><Layout><AdminDashboard /></Layout></AdminRoute>} />
+      <Route path="/admin/audit" element={<AdminRoute><Layout><AuditLogPage /></Layout></AdminRoute>} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <ToastProvider>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}

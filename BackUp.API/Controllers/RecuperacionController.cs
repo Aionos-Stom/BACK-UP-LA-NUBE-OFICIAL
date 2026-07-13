@@ -1,20 +1,26 @@
-﻿using BackUp.Aplication.Dtos.Recuperacion;
+using BackUp.Aplication.Dtos.Recuperacion;
 using BackUp.Aplication.Interfaces.IService;
 using BackUp.Domain.Base;
+using BackUp.Persistence.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class RecuperacionController : ControllerBase
     {
         private readonly IRecuperacionService _recuperacionService;
+        private readonly BackUpDbContext _context;
 
-        public RecuperacionController(IRecuperacionService recuperacionService)
+        public RecuperacionController(IRecuperacionService recuperacionService, BackUpDbContext context)
         {
             _recuperacionService = recuperacionService;
+            _context = context;
         }
 
         [HttpGet]
@@ -37,26 +43,31 @@ namespace BackUp.API.Controllers
         [HttpGet("usuario/{usuarioId}")]
         public async Task<ActionResult<OperationResult>> ObtenerPorUsuario(int usuarioId)
         {
-            var result = await _recuperacionService.ObtenerTodosAsync();
-            // Filtrar por usuarioId si tu servicio base no tiene este método específico
-            // O implementar un método específico en el servicio
-            return Ok(result);
+            var recs = await _context.Recuperacion
+                .Where(r => r.UsuarioId == usuarioId)
+                .OrderByDescending(r => r.Id)
+                .ToListAsync();
+            return Ok(OperationResult.Success(recs));
         }
 
         [HttpGet("job/{jobId}")]
         public async Task<ActionResult<OperationResult>> ObtenerPorJob(int jobId)
         {
-            var result = await _recuperacionService.ObtenerTodosAsync();
-            // Filtrar por jobId si tu servicio base no tiene este método específico
-            return Ok(result);
+            var recs = await _context.Recuperacion
+                .Where(r => r.JobId == jobId)
+                .OrderByDescending(r => r.Id)
+                .ToListAsync();
+            return Ok(OperationResult.Success(recs));
         }
 
         [HttpGet("estado/{estado}")]
         public async Task<ActionResult<OperationResult>> ObtenerPorEstado(string estado)
         {
-            var result = await _recuperacionService.ObtenerTodosAsync();
-            // Filtrar por estado si tu servicio base no tiene este método específico
-            return Ok(result);
+            var recs = await _context.Recuperacion
+                .Where(r => r.Estado == estado)
+                .OrderByDescending(r => r.Id)
+                .ToListAsync();
+            return Ok(OperationResult.Success(recs));
         }
 
         [HttpPost]
@@ -123,6 +134,5 @@ namespace BackUp.API.Controllers
 
             return Ok(result);
         }
-
     }
 }

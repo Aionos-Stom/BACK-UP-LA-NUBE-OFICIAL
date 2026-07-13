@@ -1,5 +1,6 @@
 ﻿using BackUp.Aplication.Dtos.CloudStorage;
 using BackUp.Aplication.Interfaces.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CloudStorageController : ControllerBase
     {
         private readonly ICloudStorageService _cloudStorageService;

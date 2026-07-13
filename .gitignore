@@ -1,0 +1,7 @@
+.env
+**/.vs
+**/bin
+**/obj
+**/node_modules
+**/*.user
+AnBackUp/dist

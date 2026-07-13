@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using BackUp.Aplication.Dtos.JobBackup;
 using BackUp.Aplication.Interfaces.IService;
 using BackUp.Domain.Base;
@@ -8,6 +9,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class JobBackupController : ControllerBase
     {
         private readonly IJobBackupService _jobBackupService;
@@ -29,14 +31,25 @@ namespace BackUp.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ObtenerJobBackupDTO>>> ObtenerTodos()
+        public async Task<ActionResult<IEnumerable<ObtenerJobBackupDTO>>> ObtenerTodos(
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 20,
+            [FromQuery] string? estado = null)
         {
             var result = await _jobBackupService.ObtenerTodosAsync();
+            if (!result.IsSuccess) return BadRequest(result.Message);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+            // Filtrar y paginar en memoria (el service ya carga todo)
+            var jobs = (result.Data as IEnumerable<ObtenerJobBackupDTO> ?? Enumerable.Empty<ObtenerJobBackupDTO>());
+            if (!string.IsNullOrEmpty(estado))
+                jobs = jobs.Where(j => j.Estado == estado);
 
-            return Ok(result.Data);
+            var total = jobs.Count();
+            var paginado = jobs
+                .OrderByDescending(j => j.FechaProgramada)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
+            return Ok(new { total, page, pageSize, data = paginado });
         }
 
         [HttpGet("programados")]

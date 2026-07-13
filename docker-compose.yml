@@ -1,0 +1,60 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: backup-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+    volumes:
+      - sql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: backup-db-init
+    user: root
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+    volumes:
+      - "./DATABASE NUBE.sql:/init.sql:ro"
+      - "./docker/init-db.sh:/init-db.sh:ro"
+    entrypoint: ["/bin/bash", "/init-db.sh"]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: BackUp.API/Dockerfile
+    container_name: backup-api
+    ports:
+      - "5271:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=n;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Secret: "${JWT_SECRET}"
+      Jwt__Issuer: "BackUpNube"
+      Jwt__Audience: "BackUpNubeClient"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./AnBackUp
+      dockerfile: Dockerfile
+    container_name: backup-frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - api
+
+volumes:
+  sql_data:

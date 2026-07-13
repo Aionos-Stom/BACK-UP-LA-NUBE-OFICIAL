@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using BackUp.Domainn.Entities;
 using BackUp.Domainn.Entities.Users;
-using Microsoft.EntityFrameworkCore.Metadata;
 using BackUp.Aplication.Interfaces.Base;
 using BackUp.Domain.Entities.Bac;
 
@@ -11,7 +11,7 @@ namespace BackUp.Persistence.Context
         public BackUpDbContext(DbContextOptions<BackUpDbContext> options) : base(options)
         { }
 
-        // Implementación de la interfaz IApplicationDbContext
+        // Entidades existentes
         public DbSet<Organizacion> Organizacion { get; set; }
         public DbSet<CloudStorage> CloudStorage { get; set; }
         public DbSet<PoliticaBackup> PoliticaBackup { get; set; }
@@ -22,6 +22,13 @@ namespace BackUp.Persistence.Context
         public DbSet<Alerta> Alerta { get; set; }
         public DbSet<Sesion> Sesion { get; set; }
 
+        // Nuevas entidades: planes, suscripciones, pagos, tokens
+        public DbSet<Plan> Plan { get; set; }
+        public DbSet<Suscripcion> Suscripcion { get; set; }
+        public DbSet<Pago> Pago { get; set; }
+        public DbSet<RefreshToken> RefreshToken { get; set; }
+        public DbSet<AuditLog> AuditLog { get; set; }
+
         Task<int> IApplicationDbContext.SaveChangesAsync(CancellationToken cancellationToken)
             => base.SaveChangesAsync(cancellationToken);
 
@@ -29,19 +36,24 @@ namespace BackUp.Persistence.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            // Mapear las entidades a los nombres reales de las tablas en la BD
+            // --- Tablas existentes ---
             modelBuilder.Entity<Organizacion>().ToTable("Organizacion");
             modelBuilder.Entity<CloudStorage>().ToTable("CloudStorage");
             modelBuilder.Entity<PoliticaBackup>().ToTable("PoliticaBackup");
             modelBuilder.Entity<JobBackup>().ToTable("JobBackup");
-            modelBuilder.Entity<Usuario>().ToTable("Usuario"); // La tabla se llama USERS, no Usuario
+            modelBuilder.Entity<Usuario>().ToTable("Usuario");
             modelBuilder.Entity<Recuperacion>().ToTable("Recuperacion");
             modelBuilder.Entity<VerificacionIntegridad>().ToTable("VerificacionIntegridad");
             modelBuilder.Entity<Alerta>().ToTable("Alerta");
             modelBuilder.Entity<Sesion>().ToTable("Sesion");
 
+            // --- Nuevas tablas ---
+            modelBuilder.Entity<Plan>().ToTable("PlanSuscripcion");
+            modelBuilder.Entity<Suscripcion>().ToTable("Suscripcion");
+            modelBuilder.Entity<Pago>().ToTable("Pago");
+            modelBuilder.Entity<RefreshToken>().ToTable("RefreshToken");
 
-            // Mapear columnas específicas para Organizacion
+            // Mapear columnas para Organizacion
             modelBuilder.Entity<Organizacion>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -51,10 +63,9 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.LicenciaValidaHasta).HasColumnName("licencia_valida_hasta");
                 entity.Property(e => e.MaxUsuarios).HasColumnName("max_usuarios");
                 entity.Property(e => e.Activo).HasColumnName("activo");
-                // fecha_creacion no se mapea ya que no existe en la entidad
             });
 
-            // Configurar CloudStorage
+            // CloudStorage
             modelBuilder.Entity<CloudStorage>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -66,10 +77,9 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.TierActual).HasColumnName("tier_actual");
                 entity.Property(e => e.CostoMensual).HasColumnName("costo_mensual");
                 entity.Property(e => e.IsActive).HasColumnName("is_active");
-                // fecha_creacion no se mapea ya que no existe en la entidad
             });
 
-            // Configurar PoliticaBackup
+            // PoliticaBackup
             modelBuilder.Entity<PoliticaBackup>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -83,10 +93,9 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.RtoMinutes).HasColumnName("rto_minutes");
                 entity.Property(e => e.VentanaEjecucion).HasColumnName("ventana_ejecucion");
                 entity.Property(e => e.IsActive).HasColumnName("is_active");
-                // fecha_creacion y descripcion no se mapean ya que no existen en la entidad
             });
 
-            // Configurar JobBackup
+            // JobBackup
             modelBuilder.Entity<JobBackup>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -101,10 +110,9 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.DuracionSegundos).HasColumnName("duracion_segundos");
                 entity.Property(e => e.SourceData).HasColumnName("source_data");
                 entity.Property(e => e.ErrorMessage).HasColumnName("error_message");
-                // created_at no se mapea ya que no existe en la entidad
             });
 
-            // Configurar Usuario
+            // Usuario
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -120,9 +128,17 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.PhoneNumber).HasColumnName("PhoneNumber");
                 entity.Property(e => e.IsActive).HasColumnName("is_active");
                 entity.Property(e => e.CreatedAt).HasColumnName("CreatedAt");
+                entity.Property(e => e.FotoPerfil).HasColumnName("FotoPerfil");
+                entity.Property(e => e.Bio).HasColumnName("Bio").HasMaxLength(500);
+                entity.Property(e => e.Ciudad).HasColumnName("Ciudad").HasMaxLength(100);
+                entity.Property(e => e.Pais).HasColumnName("Pais").HasMaxLength(100);
+                entity.Property(e => e.Cargo).HasColumnName("Cargo").HasMaxLength(150);
+                entity.Property(e => e.Empresa).HasColumnName("Empresa").HasMaxLength(150);
+                entity.Property(e => e.FechaNacimiento).HasColumnName("FechaNacimiento");
+                entity.Property(e => e.LinkedIn).HasColumnName("LinkedIn").HasMaxLength(200);
             });
 
-            // Configurar Recuperacion
+            // Recuperacion
             modelBuilder.Entity<Recuperacion>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -135,10 +151,9 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.Estado).HasColumnName("estado");
                 entity.Property(e => e.IsSimulacion).HasColumnName("is_simulacion");
                 entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
-                // created_at no se mapea ya que no existe en la entidad
             });
 
-            // Configurar VerificacionIntegridad
+            // VerificacionIntegridad
             modelBuilder.Entity<VerificacionIntegridad>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -151,7 +166,7 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.IntegrityScore).HasColumnName("integrity_score");
             });
 
-            // Configurar Alerta
+            // Alerta
             modelBuilder.Entity<Alerta>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -162,10 +177,9 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.Severidad).HasColumnName("severidad");
                 entity.Property(e => e.Mensaje).HasColumnName("mensaje");
                 entity.Property(e => e.IsAcknowledged).HasColumnName("is_acknowledged");
-                // created_at no se mapea ya que no existe en la entidad
             });
 
-            // Configurar Sesion
+            // Sesion
             modelBuilder.Entity<Sesion>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -175,92 +189,187 @@ namespace BackUp.Persistence.Context
                 entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
                 entity.Property(e => e.IpAddress).HasColumnName("ip_address");
                 entity.Property(e => e.UserAgent).HasColumnName("user_agent");
-                // created_at no se mapea ya que no existe en la entidad
             });
 
-            // Configurar relaciones
+            // --- Nuevas entidades ---
+            modelBuilder.Entity<Plan>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(100);
+                entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+                entity.Property(e => e.PrecioMensual).HasColumnName("precio_mensual").HasPrecision(10, 2);
+                entity.Property(e => e.LimiteAlmacenamientoBytes).HasColumnName("limite_almacenamiento_bytes");
+                entity.Property(e => e.MaxJobsConcurrentes).HasColumnName("max_jobs_concurrentes");
+                entity.Property(e => e.MaxPoliticas).HasColumnName("max_politicas");
+                entity.Property(e => e.BackupAutomatico).HasColumnName("backup_automatico");
+                entity.Property(e => e.SoportePrioritario).HasColumnName("soporte_prioritario");
+                entity.Property(e => e.EsGratuito).HasColumnName("es_gratuito");
+                entity.Property(e => e.IsActive).HasColumnName("is_active");
+            });
+
+            modelBuilder.Entity<Suscripcion>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+                entity.Property(e => e.PlanId).HasColumnName("plan_id");
+                entity.Property(e => e.Estado).HasColumnName("estado").HasMaxLength(30);
+                entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
+                entity.Property(e => e.FechaFin).HasColumnName("fecha_fin");
+                entity.Property(e => e.EsGratisAdminGranted).HasColumnName("es_gratis_admin_granted");
+                entity.Property(e => e.OtorgadaPorAdminId).HasColumnName("otorgada_por_admin_id");
+                entity.Property(e => e.AlmacenamientoUsadoBytes).HasColumnName("almacenamiento_usado_bytes");
+            });
+
+            modelBuilder.Entity<Pago>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.SuscripcionId).HasColumnName("suscripcion_id");
+                entity.Property(e => e.Monto).HasColumnName("monto").HasPrecision(10, 2);
+                entity.Property(e => e.Moneda).HasColumnName("moneda").HasMaxLength(10);
+                entity.Property(e => e.Estado).HasColumnName("estado").HasMaxLength(20);
+                entity.Property(e => e.MetodoPago).HasColumnName("metodo_pago").HasMaxLength(50);
+                entity.Property(e => e.ReferenciaExterna).HasColumnName("referencia_externa");
+                entity.Property(e => e.FechaPago).HasColumnName("fecha_pago");
+                entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+                entity.Property(e => e.Token).HasColumnName("token").HasMaxLength(512);
+                entity.Property(e => e.Expiracion).HasColumnName("expiracion");
+                entity.Property(e => e.Revocado).HasColumnName("revocado");
+                entity.Property(e => e.CreadoEn).HasColumnName("creado_en");
+                entity.Property(e => e.ReemplazadoPor).HasColumnName("reemplazado_por");
+                // Propiedad computada - no mapear
+                entity.Ignore(e => e.EstaActivo);
+            });
+
             ConfigureRelationships(modelBuilder);
+            ConfigureAuditLog(modelBuilder);
         }
 
         private void ConfigureRelationships(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CloudStorage>()
-       .HasOne(cs => cs.Organizacion)
-       .WithMany(o => o.CloudStorages)
-       .HasForeignKey(cs => cs.OrganizacionId)
-       .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(cs => cs.Organizacion)
+                .WithMany(o => o.CloudStorages)
+                .HasForeignKey(cs => cs.OrganizacionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Organizacion -> PoliticaBackup (1 a muchos)
             modelBuilder.Entity<PoliticaBackup>()
                 .HasOne(pb => pb.Organizacion)
                 .WithMany(o => o.PoliticasBackup)
                 .HasForeignKey(pb => pb.OrganizacionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Organizacion -> Usuario (1 a muchos) - CORREGIDO
             modelBuilder.Entity<Usuario>()
-                .HasOne(u => u.Organizacion)  // Usar la propiedad de navegación
+                .HasOne(u => u.Organizacion)
                 .WithMany(o => o.Usuarios)
                 .HasForeignKey(u => u.OrganizacionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // PoliticaBackup -> JobBackup (1 a muchos)
             modelBuilder.Entity<JobBackup>()
                 .HasOne(jb => jb.Politica)
                 .WithMany(pb => pb.JobsBackup)
                 .HasForeignKey(jb => jb.PoliticaId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // CloudStorage -> JobBackup (1 a muchos)
             modelBuilder.Entity<JobBackup>()
                 .HasOne(jb => jb.CloudStorage)
                 .WithMany(cs => cs.JobsBackup)
                 .HasForeignKey(jb => jb.CloudStorageId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // JobBackup -> VerificacionIntegridad (1 a muchos) - CORREGIDO
             modelBuilder.Entity<VerificacionIntegridad>()
                 .HasOne(vi => vi.JobBackup)
                 .WithMany(jb => jb.VerificacionesIntegridad)
                 .HasForeignKey(vi => vi.job_id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // JobBackup -> Recuperacion (1 a muchos) - CORREGIDO
             modelBuilder.Entity<Recuperacion>()
                 .HasOne(r => r.JobBackup)
                 .WithMany(jb => jb.Recuperaciones)
                 .HasForeignKey(r => r.JobId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // JobBackup -> Alerta (1 a muchos)
             modelBuilder.Entity<Alerta>()
                 .HasOne(a => a.JobBackup)
                 .WithMany(jb => jb.Alertas)
                 .HasForeignKey(a => a.JobId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // Usuario -> Alerta (1 a muchos) - CORREGIDO
             modelBuilder.Entity<Alerta>()
                 .HasOne(a => a.Usuario)
                 .WithMany(u => u.Alertas)
                 .HasForeignKey(a => a.UsuarioId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // Usuario -> Sesion (1 a muchos) - CORREGIDO
             modelBuilder.Entity<Sesion>()
                 .HasOne(s => s.Usuario)
                 .WithMany(u => u.Sesiones)
                 .HasForeignKey(s => s.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Usuario -> Recuperacion (1 a muchos) - CORREGIDO
             modelBuilder.Entity<Recuperacion>()
-                .HasOne(r => r.Usuario)  // Usar la propiedad de navegación
+                .HasOne(r => r.Usuario)
                 .WithMany(u => u.Recuperaciones)
                 .HasForeignKey(r => r.UsuarioId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            // Nuevas relaciones
+            modelBuilder.Entity<Suscripcion>()
+                .HasOne(s => s.Usuario)
+                .WithMany()
+                .HasForeignKey(s => s.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Suscripcion>()
+                .HasOne(s => s.Plan)
+                .WithMany(p => p.Suscripciones)
+                .HasForeignKey(s => s.PlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Pago>()
+                .HasOne(p => p.Suscripcion)
+                .WithMany(s => s.Pagos)
+                .HasForeignKey(p => p.SuscripcionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(rt => rt.Usuario)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureAuditLog(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AuditLog>().ToTable("AuditLog");
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+                entity.Property(e => e.Accion).HasColumnName("accion").HasMaxLength(100);
+                entity.Property(e => e.Entidad).HasColumnName("entidad").HasMaxLength(100);
+                entity.Property(e => e.EntidadId).HasColumnName("entidad_id").HasMaxLength(50);
+                entity.Property(e => e.DatosAnteriores).HasColumnName("datos_anteriores");
+                entity.Property(e => e.DatosNuevos).HasColumnName("datos_nuevos");
+                entity.Property(e => e.IpAddress).HasColumnName("ip_address").HasMaxLength(45);
+                entity.Property(e => e.UserAgent).HasColumnName("user_agent");
+                entity.Property(e => e.CreadoEn).HasColumnName("creado_en");
+                entity.Property(e => e.Email).HasColumnName("email").HasMaxLength(255);
+                entity.Property(e => e.Navegador).HasColumnName("Navegador").HasMaxLength(200);
+                entity.Property(e => e.SistemaOperativo).HasColumnName("SistemaOperativo").HasMaxLength(100);
+                entity.Property(e => e.Dispositivo).HasColumnName("Dispositivo").HasMaxLength(50);
+                entity.Property(e => e.DescripcionLegible).HasColumnName("DescripcionLegible").HasMaxLength(500);
+            });
         }
     }
 }
-
-

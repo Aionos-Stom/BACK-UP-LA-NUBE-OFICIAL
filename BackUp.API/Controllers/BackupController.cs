@@ -2,6 +2,7 @@
 using BackUp.Application.Dtos.Dashboard;
 using BackUp.Application.Interfaces.IService;
 using BackUp.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,6 +11,7 @@ namespace BackUp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BackupController : ControllerBase
     {
         private readonly IBackupService _backupService;

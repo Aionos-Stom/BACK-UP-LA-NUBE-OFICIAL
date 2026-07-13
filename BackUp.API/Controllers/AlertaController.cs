@@ -1,5 +1,6 @@
 ﻿using BackUp.Application.Dtos.Alerta;
 using BackUp.Application.Interfaces.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace BackUp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AlertaController : ControllerBase
     {
         private readonly IAlertaService _alertaService;

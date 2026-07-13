@@ -1,0 +1,10 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/node_modules
+**/*.user
+AnBackUp/dist
+BackUp.P.Test
+BackUp.Aplication.Test
+.env
